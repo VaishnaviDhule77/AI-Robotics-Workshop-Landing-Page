@@ -4,9 +4,9 @@ const { body, validationResult } = require('express-validator');
 const app = express();
 app.use(express.json());
 
-// CORS fix
+// 1. FIXED CORS: Restrict allowed origin to your specific live frontend URL
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Origin', 'https://ai-robotics-workshop-landing-page.onrender.com');
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
@@ -37,7 +37,7 @@ app.post('/api/enquiry', [
     name, email, phone,
     workshop: workshop || 'AI & Robotics Summer Workshop',
     ageGroup: ageGroup || '8-14',
-    startDate: startDate || '2026-07-15',
+    startDate: startDate || '2026-07-15', // Kept for your summer timeline
     createdAt: new Date().toISOString()
   };
   enquiries.push(entry);
@@ -54,14 +54,14 @@ app.get('/api/enquiry', (req, res) => {
   res.json({ success: true, count: enquiries.length, data: enquiries });
 });
 
-const PORT = 3000;
+// 2. FIXED PORT: Render dynamically injects a port, falling back to 3000 locally
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('');
-  console.log('  🚀 Kidrove API Server');
-  console.log('  ━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('  📝 POST http://localhost:3000/api/enquiry');
-  console.log('  📋 GET  http://localhost:3000/api/enquiry');
-  console.log('  ━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('  ✅ Ready — No MongoDB needed!');
+  console.log('   🚀 Kidrove API Server');
+  console.log('   ━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`   📝 Live on Port: ${PORT}`);
+  console.log('   ━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('   ✅ Ready — No MongoDB needed!');
   console.log('');
 });
