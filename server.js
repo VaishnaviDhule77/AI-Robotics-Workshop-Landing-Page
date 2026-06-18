@@ -1,12 +1,17 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const path = require('path'); // Added to handle directory paths safely
 
 const app = express();
 app.use(express.json());
 
-// 1. FIXED CORS: Restrict allowed origin to your specific live frontend URL
+// 1. UPDATED STATIC FRONTEND SERVING
+// Serves your static folder elements (like CSS, images, etc.) if they exist in the root
+app.use(express.static(__dirname));
+
+// 2. UPDATED CORS: Restored '*' wildcard or automated origin mapping so requests from local testing, Go Live, and production work seamlessly
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://ai-robotics-workshop-landing-page.onrender.com');
+  res.header('Access-Control-Allow-Origin', '*'); 
   res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
@@ -37,7 +42,7 @@ app.post('/api/enquiry', [
     name, email, phone,
     workshop: workshop || 'AI & Robotics Summer Workshop',
     ageGroup: ageGroup || '8-14',
-    startDate: startDate || '2026-07-15', // Kept for your summer timeline
+    startDate: startDate || '2026-07-15', 
     createdAt: new Date().toISOString()
   };
   enquiries.push(entry);
@@ -54,14 +59,19 @@ app.get('/api/enquiry', (req, res) => {
   res.json({ success: true, count: enquiries.length, data: enquiries });
 });
 
-// 2. FIXED PORT: Render dynamically injects a port, falling back to 3000 locally
+// 3. UPDATED ROOT GET HANDLER: Serves your index.html interface file right to the root URL
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 4. FIXED PORT: Render dynamically injects a port, falling back to 3000 locally
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log('');
-  console.log('   🚀 Kidrove API Server');
-  console.log('   ━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log(`   📝 Live on Port: ${PORT}`);
-  console.log('   ━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('   ✅ Ready — No MongoDB needed!');
+  console.log('    🚀 Kidrove API Server');
+  console.log('    ━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log(`    📝 Live on Port: ${PORT}`);
+  console.log('    ━━━━━━━━━━━━━━━━━━━━━━━');
+  console.log('    ✅ Ready — Serving Frontend & API!');
   console.log('');
 });
